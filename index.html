@@ -1,126 +1,133 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
-    <link rel="stylesheet" href="./TemplateData/style.css">
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    <style>
-        /* Убираем выделение по нажатию клавиш */
-        canvas:focus {
-            outline: none;
-        }
-
-        html, body {
-            /* Убираем отступы */
-            padding: 0;
-            margin: 0;
-            /* Отключаем скролл и лонгтап на IOS */
-            overflow: hidden;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-            /* Ставим высоту на 100% */
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
+    <title>Unity Web Player | FB_OVERTIME</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
     <div id="unity-container" class="unity-desktop">
-        <canvas id="unity-canvas" tabindex="-1"></canvas>
-    </div>
-    <div id="loading-cover" style="display:none;">
-        <div id="unity-loading-bar">
-            <div id="unity-logo"><img src="./TemplateData/logo.png"></div>
-            <div id="unity-progress-bar-empty" style="display: none;">
-                <div id="unity-progress-bar-full"></div>
-            </div>
-            <div class="spinner"></div>
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
         </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">FB_OVERTIME</div>
+      </div>
     </div>
     <script>
-        vkBridge.send("VKWebAppInit", {});
-        const container = document.querySelector("#unity-container");
-        const canvas = document.querySelector("#unity-canvas");
-        const loadingCover = document.querySelector("#loading-cover");
-        const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
-        const progressBarFull = document.querySelector("#unity-progress-bar-full");
-        const spinner = document.querySelector('.spinner');
+      var canvas = document.querySelector("#unity-canvas");
 
-        // Shows a temporary message banner/ribbon for a few seconds, or
-        // a permanent error message on top of the canvas if type=='error'.
-        // If type=='warning', a yellow highlight color is used.
-        // Modify or remove this function to customize the visually presented
-        // way that non-critical warnings and error messages are presented to the
-        // user.
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
 
-        var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/645426b7b85e6182a6a5f25f42f36988.loader.js";
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/4eb0baff7dc76e4e47ae80e6b39f8401.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/b1a9265e1ec9ef090111ebc32b23cff9.data.unityweb",
-        frameworkUrl: buildUrl + "/9314273ef35a10155ec60b92f7b8f977.framework.js.unityweb",
-        codeUrl: buildUrl + "/ab7ae50fc22096f672c3683871c508ff.wasm.unityweb",
+        dataUrl: buildUrl + "/c75842c15088303569bfdc501366bb52.data.unityweb",
+        frameworkUrl: buildUrl + "/a3425243c4960b53406603f9ca0bf90c.framework.js.unityweb",
+        codeUrl: buildUrl + "/e5a4a887d61b2435646c5dbddaa0bebc.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "FB_OVERTIME",
         productVersion: "0.1",
-        };
+        showBanner: unityShowBanner,
+        // errorHandler: function(err, url, line) {
+        //    alert("error " + err + " occurred at line " + line);
+        //    // Return 'true' if you handled this error and don't want Unity
+        //    // to process it further, 'false' otherwise.
+        //    return true;
+        // },
+      };
 
-        // By default, Unity keeps WebGL canvas render target size matched with
-        // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-        // Set this to false if you want to decouple this synchronization from
-        // happening inside the engine, and you would instead like to size up
-        // the canvas DOM size and WebGL render target sizes yourself.
-        // config.matchWebGLToCanvasSize = false;
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            container.className = "unity-mobile";
-            
-            //config.devicePixelRatio = 1;
-        }
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
 
-        // Фоновое изображение при загрузке игры. При сборке билда код меняется взависимости от настроек проекта.
-        loadingCover.style.background = "url('background.jpg') center / cover";
-        loadingCover.style.display = "";
+      // If you would like all file writes inside Unity Application.persistentDataPath
+      // directory to automatically persist so that the contents are remembered when
+      // the user revisits the site the next time, uncomment the following line:
+      // config.autoSyncPersistentDataPath = true;
+      // This autosyncing is currently not the default behavior to avoid regressing
+      // existing user projects that might rely on the earlier manual
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // expected to change.
 
-        // Выключаем появление меню при правом клике мыши
-        document.addEventListener('contextmenu', event => event.preventDefault());
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
 
-        function FocusGame() {
-            window.focus();
-            canvas.focus();
-        }
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
 
-        window.addEventListener('pointerdown', () => {
-            FocusGame();
-        });
-        window.addEventListener('touchstart', () => {
-            FocusGame();
-        });
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
 
 
-        var script = document.createElement("script");
-        script.src = loaderUrl;
-        script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-                spinner.style.display = "none";
-                progressBarEmpty.style.display = "";
-                progressBarFull.style.width = `${100 * progress}%`;
-            }).then((unityInstance) => {
-                loadingCover.style.display = "none";
-            }).catch((message) => {
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+                document.querySelector("#unity-loading-bar").style.display = "none";
+                document.querySelector("#unity-fullscreen-button").onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+
+              }).catch((message) => {
                 alert(message);
-            });
-        };
+              });
+            };
 
-        document.body.appendChild(script);
+      document.body.appendChild(script);
 
     </script>
-</body>
+  </body>
 </html>
